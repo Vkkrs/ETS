@@ -63,41 +63,44 @@ export default async function ExerciseDetailPage({
         </Link>
       </div>
 
-      {/* Hero section */}
-      <div className="relative w-full overflow-hidden border-b border-[#141414] isolate">
-        {/* Grain overlay */}
+      {/* Hero — 200px, grain 0.08, vignette + gradient */}
+      <div className="relative w-full overflow-hidden" style={{ height: "200px", borderBottom: "1px solid #141414" }}>
+        <div className="absolute inset-0 bg-ets-bg" />
+        {/* Grain */}
         <div
-          className="absolute inset-0 opacity-[0.12] pointer-events-none animate-grain"
+          className="absolute inset-0 pointer-events-none"
           style={{
-            backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
-            backgroundSize: "128px 128px",
+            opacity: 0.08,
+            backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`,
+            backgroundSize: "180px",
           }}
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-ets-bg via-ets-bg/40 to-transparent" />
-        <div className="relative z-10 px-[22px] pt-[32px] pb-[24px]">
-          {/* Category + intensity tags */}
-          <div className="flex gap-[8px] mb-[14px]">
-            <span className="font-display text-[10px] tracking-[0.14em] text-ets-text-low border border-ets-border px-[8px] py-[3px]">
-              {CATEGORY_LABEL[ex.category]}
-            </span>
-            <span className="font-display text-[10px] tracking-[0.14em] text-ets-text-low border border-ets-border px-[8px] py-[3px]">
-              {INTENSITY_LABEL[ex.intensity]}
-            </span>
+        {/* Vignette */}
+        <div
+          className="absolute inset-0"
+          style={{ background: "radial-gradient(ellipse at center, transparent 20%, rgba(0,0,0,0.65) 100%)" }}
+        />
+        {/* Gradient bottom */}
+        <div
+          className="absolute inset-0"
+          style={{ background: "linear-gradient(to top, #080808 0%, rgba(8,8,8,0.5) 50%, transparent 100%)" }}
+        />
+        {/* Content */}
+        <div className="absolute bottom-0 left-0 right-0" style={{ padding: "22px" }}>
+          <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "10px", letterSpacing: "0.4em", color: "#00FF88", marginBottom: "6px" }}>
+            {CATEGORY_LABEL[ex.category]} · {INTENSITY_LABEL[ex.intensity]}
           </div>
-          <h1 className="font-display text-[40px] leading-[0.9] tracking-[0.01em] text-ets-text-primary mb-[10px]">
+          <h1 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "40px", lineHeight: 0.86, letterSpacing: "0.01em", color: "#fff" }}>
             {ex.name}
           </h1>
-          {/* Difficulty */}
-          <div className="flex gap-[4px] items-center">
-            {DIFFICULTY_DOTS.map((d) => (
+          <div style={{ display: "flex", gap: "4px", alignItems: "center", marginTop: "10px" }}>
+            {[1,2,3,4,5].map((d) => (
               <span
                 key={d}
-                className={`w-[6px] h-[6px] ${
-                  d <= ex.difficulty ? "bg-ets-accent" : "bg-ets-border"
-                }`}
+                style={{ width: "6px", height: "6px", background: d <= ex.difficulty ? "#00FF88" : "#141414", display: "inline-block" }}
               />
             ))}
-            <span className="font-display text-[10px] tracking-[0.1em] text-ets-text-low ml-[6px]">
+            <span style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "9px", letterSpacing: "0.14em", color: "#383838", marginLeft: "6px" }}>
               LEVEL {ex.difficulty}
             </span>
           </div>

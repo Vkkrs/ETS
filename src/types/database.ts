@@ -42,6 +42,44 @@ export interface WorkoutLog {
   created_at: string;
 }
 
+export interface TrainingPlan {
+  id: string;
+  user_id: string;
+  name: string;
+  week_start: string;
+  intensity: string | null;
+  equipment: string | null;
+  ai_generated: boolean;
+  created_at: string;
+}
+
+export interface TrainingPlanDay {
+  id: string;
+  plan_id: string;
+  day_of_week: 0 | 1 | 2 | 3 | 4 | 5 | 6;
+  type: "train" | "rest" | "recovery";
+  workout_name: string | null;
+  exercise_ids: string[];
+}
+
+export interface MealPlan {
+  id: string;
+  user_id: string;
+  week_start: string;
+  calorie_target: number | null;
+  ai_generated: boolean;
+  created_at: string;
+}
+
+export interface MealPlanEntry {
+  id: string;
+  plan_id: string;
+  day_of_week: 0 | 1 | 2 | 3 | 4 | 5 | 6;
+  meal_type: "breakfast" | "pre_wo" | "lunch" | "post_wo" | "dinner" | "snack";
+  recipe_id: string | null;
+  servings: number;
+}
+
 export interface Recipe {
   id: string;
   user_id: string | null;

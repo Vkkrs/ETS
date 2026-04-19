@@ -1,32 +1,54 @@
 interface SecHeroProps {
   eyebrow: string;
   title: string;
-  subtitle?: string;
 }
 
-export default function SecHero({ eyebrow, title, subtitle }: SecHeroProps) {
+export default function SecHero({ eyebrow, title }: SecHeroProps) {
   return (
-    <div className="relative w-full h-[200px] overflow-hidden flex flex-col justify-end border-b border-[#141414] isolate">
-      {/* Grain overlay */}
+    <div className="relative w-full overflow-hidden" style={{ height: "170px" }}>
+      {/* Dark base */}
+      <div className="absolute inset-0 bg-ets-bg" />
+
+      {/* Grain — static, opacity 0.08, 180px tile */}
       <div
-        className="absolute inset-0 opacity-[0.12] pointer-events-none animate-grain"
+        className="absolute inset-0 pointer-events-none"
         style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
-          backgroundSize: "128px 128px",
+          opacity: 0.08,
+          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`,
+          backgroundSize: "180px",
         }}
       />
-      {/* Fade gradient from bottom */}
-      <div className="absolute inset-0 bg-gradient-to-t from-ets-bg via-ets-bg/60 to-transparent" />
-      <div className="relative z-10 px-[22px] pb-[22px]">
-        <p className="font-display text-[12px] tracking-[0.38em] text-ets-accent mb-[10px]">
+
+      {/* Gradient — bottom to top */}
+      <div
+        className="absolute inset-0"
+        style={{ background: "linear-gradient(to top, #080808 0%, transparent 100%)" }}
+      />
+
+      {/* Content */}
+      <div className="absolute bottom-0 left-0 right-0" style={{ padding: "14px 22px" }}>
+        <div
+          style={{
+            fontFamily: "'Bebas Neue', sans-serif",
+            fontSize: "10px",
+            letterSpacing: "0.4em",
+            color: "#00FF88",
+            marginBottom: "6px",
+          }}
+        >
           {eyebrow}
-        </p>
-        <h1 className="font-display text-[34px] leading-[0.94] tracking-[0.01em] text-ets-text-primary">
+        </div>
+        <div
+          style={{
+            fontFamily: "'Bebas Neue', sans-serif",
+            fontSize: "34px",
+            lineHeight: 0.9,
+            letterSpacing: "0.01em",
+            color: "#fff",
+          }}
+        >
           {title}
-        </h1>
-        {subtitle && (
-          <p className="font-body text-[13px] text-ets-text-muted mt-[8px]">{subtitle}</p>
-        )}
+        </div>
       </div>
     </div>
   );

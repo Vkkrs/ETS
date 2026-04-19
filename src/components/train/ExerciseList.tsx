@@ -3,6 +3,7 @@
 import { useState, useMemo } from "react";
 import Link from "next/link";
 import type { Exercise } from "@/types/database";
+import { filterExercises } from "@/lib/utils/filters";
 
 type Category = "all" | "calisthenics" | "strength" | "mobility";
 
@@ -13,12 +14,11 @@ const CATEGORY_LABELS: Record<Category, string> = {
   mobility: "MOBILITY",
 };
 
-const DIFFICULTY_DOTS = [1, 2, 3, 4, 5];
-
-const CATEGORY_TAG: Record<Exercise["category"], string> = {
-  calisthenics: "CAL",
-  strength: "STR",
-  mobility: "MOB",
+// calisthenics gets accent-tinted tag (.ltag.g), others get plain (.ltag)
+const CATEGORY_TAG: Record<Exercise["category"], { label: string; accent: boolean }> = {
+  calisthenics: { label: "CAL",  accent: true },
+  strength:     { label: "STR",  accent: false },
+  mobility:     { label: "MOB",  accent: false },
 };
 
 interface ExerciseListProps {
@@ -29,130 +29,154 @@ export default function ExerciseList({ exercises }: ExerciseListProps) {
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState<Category>("all");
 
-  const filtered = useMemo(() => {
-    return exercises.filter((ex) => {
-      const matchesCategory = category === "all" || ex.category === category;
-      const matchesQuery =
-        query.trim() === "" ||
-        ex.name.toLowerCase().includes(query.toLowerCase()) ||
-        ex.muscle_primary.some((m) =>
-          m.toLowerCase().includes(query.toLowerCase())
-        );
-      return matchesCategory && matchesQuery;
-    });
-  }, [exercises, query, category]);
+  const filtered = useMemo(
+    () => filterExercises(exercises, query, category),
+    [exercises, query, category]
+  );
 
   return (
     <div>
-      {/* Search bar */}
-      <div className="px-[22px] pt-[18px] pb-[14px] border-b border-ets-border">
-        <div className="relative">
-          <svg
-            className="absolute left-[12px] top-1/2 -translate-y-1/2 text-ets-text-low"
-            width="14"
-            height="14"
-            viewBox="0 0 14 14"
-            fill="none"
-          >
-            <circle cx="6" cy="6" r="4.5" stroke="currentColor" strokeWidth="1.3" />
-            <path d="M10 10L13 13" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
+      {/* Search bar — bottom-border only, no input box */}
+      <div
+        style={{
+          margin: "14px 22px 6px",
+          display: "flex",
+          alignItems: "center",
+          gap: "10px",
+          borderBottom: "1px solid #0F0F0F",
+          paddingBottom: "12px",
+        }}
+      >
+        <div style={{ flexShrink: 0 }}>
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" style={{ display: "block" }}>
+            <circle cx="11" cy="11" r="8" stroke="#1A1A1A" strokeWidth="1.5" strokeLinecap="round" />
+            <line x1="21" y1="21" x2="16.65" y2="16.65" stroke="#1A1A1A" strokeWidth="1.5" strokeLinecap="round" />
           </svg>
-          <input
-            type="text"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="SEARCH EXERCISES"
-            className="w-full bg-ets-surface border border-ets-border pl-[34px] pr-[12px] py-[9px] font-display text-[13px] tracking-[0.08em] text-ets-text-primary placeholder:text-ets-text-low focus:outline-none focus:border-ets-text-low"
-          />
         </div>
+        <input
+          type="text"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="SUCHEN · MUSKEL · KATEGORIE..."
+          style={{
+            background: "none",
+            border: "none",
+            fontFamily: "'Bebas Neue', sans-serif",
+            fontSize: "13px",
+            letterSpacing: "0.1em",
+            color: "#666",
+            outline: "none",
+            flex: 1,
+          }}
+        />
       </div>
 
       {/* Category filter */}
-      <div className="flex border-b border-ets-border">
+      <div style={{ display: "flex", borderBottom: "1px solid #0F0F0F" }}>
         {(Object.keys(CATEGORY_LABELS) as Category[]).map((cat) => (
           <button
             key={cat}
             onClick={() => setCategory(cat)}
-            className={`flex-1 py-[10px] font-display text-[10px] tracking-[0.12em] transition-colors duration-100 ${
-              category === cat
-                ? "text-ets-accent border-b-2 border-ets-accent -mb-[1px]"
-                : "text-ets-text-low"
-            }`}
+            style={{
+              flex: 1,
+              padding: "9px 4px",
+              fontFamily: "'Bebas Neue', sans-serif",
+              fontSize: "9px",
+              letterSpacing: "0.14em",
+              color: category === cat ? "#00FF88" : "#1A1A1A",
+              background: "none",
+              border: "none",
+              borderBottom: category === cat ? "1px solid #00FF88" : "1px solid transparent",
+              marginBottom: "-1px",
+              cursor: "pointer",
+            }}
           >
             {CATEGORY_LABELS[cat]}
           </button>
         ))}
       </div>
 
-      {/* Count */}
-      <div className="px-[22px] py-[10px] border-b border-ets-border">
-        <span className="font-display text-[10px] tracking-[0.12em] text-ets-text-low">
-          {filtered.length} ÜBUNGEN
-        </span>
-      </div>
-
       {/* Exercise rows */}
       <div>
         {filtered.length === 0 ? (
-          <div className="px-[22px] py-[40px] text-center">
-            <p className="font-display text-[13px] tracking-widest text-ets-text-low">
+          <div style={{ padding: "40px 22px", textAlign: "center" }}>
+            <p style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "13px", letterSpacing: "0.2em", color: "#242424" }}>
               KEINE ERGEBNISSE
             </p>
           </div>
         ) : (
-          filtered.map((ex) => (
-            <Link
-              key={ex.id}
-              href={`/train/${ex.id}`}
-              className="grid grid-cols-[52px_1fr_auto_14px] gap-[14px] items-center px-[22px] py-[14px] border-b border-ets-border border-l-2 border-l-transparent hover:border-l-[rgba(0,255,136,0.3)] hover:bg-[#0A0A0A] transition-[border-color,background-color] duration-[120ms]"
-            >
-              {/* Category tag */}
-              <div className="flex items-center justify-center bg-ets-border h-[36px]">
-                <span className="font-display text-[10px] tracking-[0.1em] text-ets-text-low">
-                  {CATEGORY_TAG[ex.category]}
-                </span>
-              </div>
-
-              {/* Name + muscles */}
-              <div className="min-w-0">
-                <p className="font-display text-[15px] tracking-[0.03em] text-ets-text-primary leading-tight truncate">
-                  {ex.name}
-                </p>
-                <p className="font-body text-[11px] text-ets-text-low mt-[2px] truncate">
-                  {ex.muscle_primary.slice(0, 2).join(" · ").replace(/_/g, " ")}
-                </p>
-              </div>
-
-              {/* Difficulty dots */}
-              <div className="flex gap-[3px] items-center">
-                {DIFFICULTY_DOTS.map((d) => (
-                  <span
-                    key={d}
-                    className={`w-[5px] h-[5px] rounded-full ${
-                      d <= ex.difficulty ? "bg-ets-accent" : "bg-ets-border"
-                    }`}
-                  />
-                ))}
-              </div>
-
-              {/* Arrow */}
-              <svg
-                width="14"
-                height="14"
-                viewBox="0 0 14 14"
-                fill="none"
-                className="text-ets-text-ghost"
+          filtered.map((ex) => {
+            const tag = CATEGORY_TAG[ex.category];
+            return (
+              <Link
+                key={ex.id}
+                href={`/train/${ex.id}`}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  padding: "13px 22px",
+                  borderBottom: "1px solid #0C0C0C",
+                  gap: "12px",
+                  textDecoration: "none",
+                  cursor: "pointer",
+                }}
               >
-                <path
-                  d="M3 7H11M7 3L11 7L7 11"
-                  stroke="currentColor"
-                  strokeWidth="1.3"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
+                {/* 44×44 thumbnail placeholder */}
+                <div
+                  style={{
+                    width: "44px",
+                    height: "44px",
+                    flexShrink: 0,
+                    background: "#0A0A0A",
+                    overflow: "hidden",
+                  }}
                 />
-              </svg>
-            </Link>
-          ))
+
+                {/* Name + muscles */}
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div
+                    style={{
+                      fontFamily: "'Bebas Neue', sans-serif",
+                      fontSize: "15px",
+                      letterSpacing: "0.03em",
+                      color: "#C8C8C8",
+                      whiteSpace: "nowrap",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                    }}
+                  >
+                    {ex.name}
+                  </div>
+                  <div
+                    style={{
+                      fontSize: "9px",
+                      letterSpacing: "0.08em",
+                      color: "#242424",
+                      marginTop: "3px",
+                    }}
+                  >
+                    {ex.muscle_primary.slice(0, 2).join(" · ").replace(/_/g, " ")}
+                    {ex.sets_default ? ` · ${ex.sets_default}×${ex.reps_default ?? `${ex.duration_default}s`}` : ""}
+                  </div>
+                </div>
+
+                {/* Category tag */}
+                <span
+                  style={{
+                    fontFamily: "'Bebas Neue', sans-serif",
+                    fontSize: "9px",
+                    letterSpacing: "0.12em",
+                    padding: "3px 7px",
+                    border: tag.accent ? "1px solid rgba(0,255,136,0.25)" : "1px solid #141414",
+                    color: tag.accent ? "rgba(0,255,136,0.7)" : "#282828",
+                    flexShrink: 0,
+                  }}
+                >
+                  {tag.label}
+                </span>
+              </Link>
+            );
+          })
         )}
       </div>
     </div>
