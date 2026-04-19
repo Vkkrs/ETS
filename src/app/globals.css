@@ -63,3 +63,8 @@
     border-left-color: rgba(0, 255, 136, 0.3);
   }
 }
+
+@keyframes blink {
+  0%, 100% { opacity: 0.25; }
+  50% { opacity: 1; }
+}

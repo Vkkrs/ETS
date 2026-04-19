@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import SecHero from "@/components/ui/SecHero";
 import ExerciseList from "@/components/train/ExerciseList";
@@ -18,21 +17,26 @@ export default async function TrainPage() {
     console.error("Error fetching exercises:", error);
   }
 
+  const exList = (exercises as Exercise[]) ?? [];
+
   return (
     <main className="pb-16">
-      <SecHero eyebrow="LIBRARY" title="TRAIN" />
-      <div className="flex border-b border-ets-border">
-        <span className="flex-1 flex items-center justify-center py-[10px] font-display text-[10px] tracking-[0.12em] text-ets-accent border-b-2 border-ets-accent -mb-[1px]">
-          LIBRARY
-        </span>
-        <Link
-          href="/train/plan"
-          className="flex-1 flex items-center justify-center py-[10px] font-display text-[10px] tracking-[0.12em] text-ets-text-low hover:text-ets-text-primary transition-colors"
-        >
-          PLAN
-        </Link>
+      <SecHero eyebrow="THE ARMORY" title={"EXERCISE\nDATABASE"} />
+      <ExerciseList exercises={exList} />
+      {/* Block 5: CTA Block */}
+      <div className="px-[22px] pt-[26px] pb-[32px] flex flex-col gap-[10px]">
+        <button className="w-full bg-ets-accent font-display text-[15px] tracking-[0.22em] text-black flex items-center justify-center min-h-[52px]">
+          + ÜBUNG HINZUFÜGEN
+        </button>
+        {exList.length > 0 && (
+          <button
+            className="w-full font-display text-[15px] tracking-[0.22em] text-ets-text-active flex items-center justify-center min-h-[52px]"
+            style={{ border: "1px solid #242424" }}
+          >
+            KI-ÜBUNG GENERIEREN
+          </button>
+        )}
       </div>
-      <ExerciseList exercises={(exercises as Exercise[]) ?? []} />
     </main>
   );
 }
